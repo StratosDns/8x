@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    <h1>This is a Chat web page</h1>
+
+
+    <!-- <video src="flower.mp4" controls></video> -->
+    
+    <script>
+
+        // 1st: We ask the user about their preferred username:
+        let username = prompt("Please give your name")
+
+        // A helper function to write messages on the <textarea> :
+        function log(message) {
+            console.log("WS: " + message)
+        }
+
+        // 2nd: We create a connection to a public Web Socket server
+        let socket = new WebSocket('ws://localhost:8080/chat')
+
+        socket.onopen = function () {
+            log('--> Opened!');
+            
+            // 3rd: Send our username to the server
+            let data = { user: username }
+            send_data(data);
+            
+        }
+        // 4th: whenever a message is sent by the server:
+        socket.onmessage = function(evt) {
+            let data = recv_data(evt.data)
+            alert(`The server says: ${data.message}`)
+        }
+        
+        socket.onclose = function() {
+            log('--> Closed');
+        }
+
+        // Helper function: sending Javascript data (eg objects)
+        // to the server by transforming them first to JSON (text)
+        // representation:
+        function send_data(data) {
+            let json_string = JSON.stringify(data)
+            log('--> Sent '+json_string);
+            socket.send(json_string)
+        }
+
+        // Helper function: receiving data from the server, the
+        // server also sends data encoded in JSON (text) so
+        // we "parse" them to transform them to Javascript 
+        // structures (eg objects):
+        function recv_data(json_string) {
+            log('--> Recvd '+json_string)
+            let data = JSON.parse(json_string)
+            return data
+        }
+
+
+    </script>
+</body>
+</html>

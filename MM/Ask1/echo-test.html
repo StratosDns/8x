@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <textarea id="log" cols="60" rows="20"></textarea><br>
+    <input type="text" id="msg"/>
+    <button onclick="sendMsg()">Send</button>
+    <script>
+        function log(message) {
+            const t = document.getElementById('log');
+            t.value += message + "\n";
+            t.scrollTop = t.scrollHeight;
+        }
+
+        let socket = new WebSocket('ws://localhost:8080/chat')
+
+        socket.onclose = function() {
+            log('--> Closed');
+        }
+        socket.onmessage = function(evt) {
+            log('Received: '+ evt.data);
+        }
+
+        socket.onopen = function () {
+            log('--> Opened!');
+        }
+
+        window.sendMsg = function() {
+            let d = document.getElementById('msg').value;
+            if (!d) return;
+            socket.send(d);
+            log('--> Sent: '+d);
+            document.getElementById('msg').value = '';
+        }
+    </script>
+</body>
+</html>
